@@ -1,9 +1,16 @@
 services:
   postgres:
-    image: 'postgres:latest'
+    container_name: shipment-tracker-sql
+    image: postgres:17.5
     environment:
-      - 'POSTGRES_DB=mydatabase'
-      - 'POSTGRES_PASSWORD=secret'
-      - 'POSTGRES_USER=myuser'
+      POSTGRES_USER: omar
+      POSTGRES_PASSWORD: omar
+      PGDATA: /data/postgres
+      POSTGRES_DB: shipment_db
+    volumes:
+      - postgres:/data/postgres
     ports:
-      - '5432'
+      - "5432:5432"
+    restart: unless-stopped
+volumes:
+  postgres:
