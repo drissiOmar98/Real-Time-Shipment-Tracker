@@ -5,25 +5,31 @@ import com.example.shipment_tracker.exception.ErrorCode;
 import com.example.shipment_tracker.shipment.dto.request.CreateShipmentRequest;
 import com.example.shipment_tracker.shipment.dto.request.UpdateStatusRequest;
 import com.example.shipment_tracker.shipment.dto.response.ShipmentResponse;
+import com.example.shipment_tracker.shipment.dto.response.StatusUpdateMessage;
 import com.example.shipment_tracker.shipment.mapper.ShipmentMapper;
 import com.example.shipment_tracker.shipment.model.Shipment;
 import com.example.shipment_tracker.shipment.repository.ShipmentRepository;
 import com.example.shipment_tracker.shipment.service.ShipmentService;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
 @Service
+@Slf4j
 public class ShipmentServiceImpl implements ShipmentService {
 
     private final ShipmentRepository shipmentRepository;
     private final ShipmentMapper shipmentMapper;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    public ShipmentServiceImpl(ShipmentRepository shipmentRepository, ShipmentMapper shipmentMapper) {
+    public ShipmentServiceImpl(ShipmentRepository shipmentRepository, ShipmentMapper shipmentMapper, SimpMessagingTemplate messagingTemplate) {
         this.shipmentRepository = shipmentRepository;
         this.shipmentMapper = shipmentMapper;
+        this.messagingTemplate = messagingTemplate;
     }
 
 
@@ -126,5 +132,40 @@ public class ShipmentServiceImpl implements ShipmentService {
     private Shipment findShipmentById(Long id) {
         return shipmentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Shipment not found with ID: " + id));
+    }
+
+    /**
+     * Publishes a realtime shipment status update to WebSocket subscribers.
+     *
+     * <p>This method builds a {@link StatusUpdateMessage} payload containing the
+     * latest shipment information and broadcasts it through the configured
+     * WebSocket message broker.</p>
+     *
+     * <p>Two topics are used:</p>
+     * <ul>
+     *   <li><b>/topic/shipments</b> – broadcasts updates for all shipments.</li>
+     *   <li><b>/topic/shipments/{shipmentId}</b> – sends updates specific to a single shipment.</li>
+     * </ul>
+     *
+     * <p>This enables connected clients (e.g., the Angular dashboard) to receive
+     * instant shipment status updates without polling the server.</p>
+     *
+     * @param shipment the shipment entity containing the latest state
+     * @param message  a descriptive message associated with the status update
+     */
+    public void notifyShipmentStatus(Shipment shipment, String message) {
+        var update = StatusUpdateMessage.builder()
+                .shipmentId(shipment.getId())
+                .trackingNumber(shipment.getTrackingNumber())
+                .status(shipment.getStatus())
+                .currentLocation(shipment.getCurrentLocation())
+                .timestamp(shipment.getUpdatedAt())
+                .message(message)
+                .build();
+
+        messagingTemplate.convertAndSend("/topic/shipments", update);
+        messagingTemplate.convertAndSend("/topic/shipments" + shipment.getId(), update);
+
+        log.info("Sent shipment status update: {}", update);
     }
 }
