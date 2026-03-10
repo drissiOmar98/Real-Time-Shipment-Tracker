@@ -8,6 +8,7 @@ import com.example.shipment_tracker.shipment.dto.response.ShipmentResponse;
 import com.example.shipment_tracker.shipment.dto.response.StatusUpdateMessage;
 import com.example.shipment_tracker.shipment.mapper.ShipmentMapper;
 import com.example.shipment_tracker.shipment.model.Shipment;
+import com.example.shipment_tracker.shipment.model.ShipmentStatus;
 import com.example.shipment_tracker.shipment.repository.ShipmentRepository;
 import com.example.shipment_tracker.shipment.service.ShipmentService;
 import jakarta.persistence.EntityNotFoundException;
@@ -167,5 +168,28 @@ public class ShipmentServiceImpl implements ShipmentService {
         messagingTemplate.convertAndSend("/topic/shipments" + shipment.getId(), update);
 
         log.info("Sent shipment status update: {}", update);
+    }
+
+    /**
+     * Returns a human-readable message describing the current shipment status.
+     *
+     * <p>This method maps a {@link ShipmentStatus} value to a descriptive message
+     * that can be used in notifications, logs, or WebSocket updates sent to clients.
+     * It ensures that each shipment lifecycle state has a clear message that can
+     * be displayed in the frontend dashboard.</p>
+     *
+     * @param status the current shipment status
+     * @return a descriptive message corresponding to the shipment status
+     */
+    private String getStatusMessage(ShipmentStatus status) {
+        return switch (status) {
+            case ORDER_PLACED -> "Order has been placed";
+            case PROCESSING -> "Order is being processed";
+            case PICKED_UP -> "Package has been picked up";
+            case IN_TRANSIT -> "Package is in transit";
+            case OUT_FOR_DELIVERY -> "Package is out for delivery";
+            case DELIVERED -> "Package has been delivered";
+            case EXCEPTION -> "Delivery exception occurred";
+        };
     }
 }
