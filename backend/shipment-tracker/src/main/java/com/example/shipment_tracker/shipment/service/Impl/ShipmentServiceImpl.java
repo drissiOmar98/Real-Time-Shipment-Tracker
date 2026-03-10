@@ -52,6 +52,9 @@ public class ShipmentServiceImpl implements ShipmentService {
         // Save entity
         Shipment savedShipment = shipmentRepository.save(shipment);
 
+        // Send realtime notification
+        notifyShipmentStatus(savedShipment, getStatusMessage(savedShipment.getStatus()));
+
         // Convert Entity -> DTO
         return shipmentMapper.toDto(savedShipment);
     }
@@ -102,6 +105,9 @@ public class ShipmentServiceImpl implements ShipmentService {
         }
 
         Shipment updatedShipment = shipmentRepository.save(shipment);
+
+        // Send realtime update
+        notifyShipmentStatus(updatedShipment, getStatusMessage(updatedShipment.getStatus()));
 
         return shipmentMapper.toDto(updatedShipment);
     }
