@@ -33,7 +33,7 @@ export class ShipmentService {
   }
 
   updateShipment(id: number, request: UpdateStatusRequest): Observable<Shipment> {
-    return this.http.put<Shipment>(`${this.apiUrl}/${id}/status`, request);
+    return this.http.patch<Shipment>(`${this.apiUrl}/${id}/status`, request);
   }
 
 
