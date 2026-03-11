@@ -1,0 +1,71 @@
+<div class="rounded-lg border border-zinc-800 bg-zinc-900 p-6 shadow-lg">
+  <h2 class="text-2xl font-semibold mb-6 text-white">Update Shipment Status</h2>
+
+  @if (errorMessage()) {
+    <div class="mb-4 rounded-md bg-red-900/20 border border-red-800 p-3">
+      <p class="text-sm text-red-400">{{ errorMessage() }}</p>
+    </div>
+  }
+
+  @if (isLoading()) {
+    <div class="flex justify-center items-center py-8">
+      <p class="text-zinc-400">Loading shipments...</p>
+    </div>
+  } @else {
+    <form [formGroup]="updateForm" (ngSubmit)="updateShipment()" class="space-y-4">
+      <div class="space-y-2">
+        <label class="text-sm font-medium text-zinc-200">Select Shipment</label>
+        <select
+          formControlName="shipmentId"
+          (change)="onSelectShipmentId()"
+          class="flex h-10 w-full rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-zinc-600"
+          [class.border-red-500]="hasError('shipmentId')"
+        >
+          <option [ngValue]="null">-- Select a shipment --</option>
+          @for (shipment of shipments(); track shipment.id) {
+            <option [ngValue]="shipment.id">
+              {{ shipment.trackingNumber }} - {{ shipment.destination }}
+            </option>
+          }
+        </select>
+        @if (hasError('shipmentId')) {
+          <p class="text-xs text-red-400">{{ getErrorMessage('shipmentId') }}</p>
+        }
+      </div>
+
+      <div class="space-y-2">
+        <label class="text-sm font-medium text-zinc-200">New Status</label>
+        <select
+          formControlName="status"
+          class="flex h-10 w-full rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-zinc-600"
+          [class.border-red-500]="hasError('status')"
+        >
+          @for (status of statusOptions; track status) {
+            <option [ngValue]="status">{{ STATUS_LABELS[status] }}</option>
+          }
+        </select>
+        @if (hasError('status')) {
+          <p class="text-xs text-red-400">{{ getErrorMessage('status') }}</p>
+        }
+      </div>
+
+      <div class="space-y-2">
+        <label class="text-sm font-medium text-zinc-200">Current Location</label>
+        <input
+          type="text"
+          formControlName="currentLocation"
+          placeholder="e.g., Chicago Distribution Center"
+          class="flex h-10 w-full rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-600"
+        />
+      </div>
+
+      <button
+        type="submit"
+        [disabled]="updateForm.invalid || isSubmitting()"
+        class="inline-flex h-10 w-full items-center justify-center rounded-md bg-zinc-700 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-zinc-600"
+      >
+        {{ isSubmitting() ? 'Updating...' : 'Update Status' }}
+      </button>
+    </form>
+  }
+</div>
