@@ -143,6 +143,24 @@ export class WebsocketService {
     return this.connected$.asObservable();
   }
 
+  /**
+   * 📥 Subscribe to all required STOMP topics
+   *
+   * Currently subscribes to `/topic/shipments` for shipment updates.
+   * Updates the `stausUpdate$` BehaviorSubject on receiving a message.
+   */
+  private subscripeToTopics(): void {
+    const subscription = this.client.subscribe('/topic/shipments', (message) => {
+      try {
+        const update = JSON.parse(message.body) as StatusUpdateMessage;
+        console.log('[WebSocket] Received update:', update);
+        this.statusUpdate$.next(update);
+      } catch (error) {
+        console.error('[WebSocket] Failed to parse message:', error);
+      }
+    });
 
+    this.subscriptions.set('/topic/shipments', subscription);
+  }
 
 }
