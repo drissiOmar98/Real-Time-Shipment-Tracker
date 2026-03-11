@@ -46,5 +46,55 @@ export class WebsocketService {
     });
   }
 
+  /**
+   * 🔧 Initialize STOMP client configuration
+   *
+   * Configures broker URL, heartbeat, reconnection, and all event handlers.
+   */
+  initClient(): void {
+    this.client = new Client({
+      brokerURL: 'http://localhost:8080/ws', // WebSocket endpoint
+      stompVersions: Versions.default,       // Default STOMP version
+      reconnectDelay: 5000,                  // Attempt reconnect every 5s
+      heartbeatIncoming: 10000,              // Expect ping every 10s
+      heartbeatOutgoing: 10000,              // Send ping every 10s
+      connectionTimeout: 10000,              // Connection timeout
+
+      // ✅ Called when STOMP connection is successfully established
+      onConnect: (frame) => {
+        console.log('[Websocket] Connected!!');
+        this.connected$.next(true);
+        this.subscripeToTopics();
+      },
+
+       // ❌ Called when STOMP connection disconnects
+      onDisconnect: () => {
+        console.log('[Websocket] Disconnected');
+        this.connected$.next(false);
+        this.subscriptions.clear();
+      },
+
+      // ⚠️ Handle STOMP protocol errors
+      onStompError: (frame) => {
+        console.error('[WebSocket] STOMP error:', frame.headers['message']);
+        console.error('[WebSocket] Error details:', frame.body);
+        this.connected$.next(false);
+      },
+
+      // ⚠️ Handle low-level WebSocket errors
+      onWebSocketError: (event) => {
+        console.error('[WebSocket] WebSocket error:', event);
+        this.connected$.next(false);
+      },
+
+      // 🔒 Handle WebSocket closure
+      onWebSocketClose: (event) => {
+        console.log('[WebSocket] WebSocket closed:', event.code, event.reason);
+        this.connected$.next(false);
+      },
+    });
+  }
+
+
 
 }
