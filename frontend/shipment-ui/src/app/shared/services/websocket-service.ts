@@ -129,6 +129,20 @@ export class WebsocketService {
     }
   }
 
+  /**
+   * 📡 Observable for real-time shipment status updates
+   */
+  getStatusUpdates(): Observable<StatusUpdateMessage | null> {
+    return this.statusUpdate$.asObservable();
+  }
+
+  /**
+   * 🔌 Observable for connection status
+   */
+  isConnected(): Observable<boolean> {
+    return this.connected$.asObservable();
+  }
+
 
 
 }
