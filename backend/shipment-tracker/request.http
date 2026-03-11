@@ -1,0 +1,111 @@
+###############################################
+# Shipment API Test Requests
+# Base URL
+###############################################
+
+@baseUrl = http://localhost:8080/api/shipments
+
+###############################################
+# 1️⃣ Create a Shipment
+#
+# estimatedDelivery:
+# A STRING describing the expected delivery
+# duration (NOT a date). Examples:
+# - "48 hours"
+# - "3-5 days"
+# - "1 week"
+###############################################
+
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "origin": "Paris",
+  "destination": "Berlin",
+  "estimatedDelivery": "3-5 days"
+}
+
+###
+
+###############################################
+# 2️⃣ Get All Shipments
+#
+# Returns a list of all shipments in the system.
+###############################################
+
+GET {{baseUrl}}
+Accept: application/json
+
+###
+
+###############################################
+# 3️⃣ Get Shipment By ID
+#
+# Replace {id} with a valid shipment ID.
+###############################################
+
+GET {{baseUrl}}/1
+Accept: application/json
+
+###
+
+###############################################
+# 4️⃣ Get Shipment By Tracking Number
+#
+# Replace TRK-XXXXXXX with an existing tracking number.
+###############################################
+
+GET {{baseUrl}}/tracking/TRK-1234ABCD
+Accept: application/json
+
+###
+
+###############################################
+# 5️⃣ Update Shipment Status
+#
+# status values must match the ShipmentStatus enum.
+#
+# Example enum values:
+# - ORDER_PLACED
+# - IN_TRANSIT
+# - OUT_FOR_DELIVERY
+# - DELIVERED
+#
+# currentLocation is optional and represents
+# the latest known location of the shipment.
+###############################################
+
+PATCH {{baseUrl}}/1/status
+Content-Type: application/json
+
+{
+  "status": "IN_TRANSIT",
+  "currentLocation": "Frankfurt Distribution Center"
+}
+
+###
+
+###############################################
+# 6️⃣ Mark Shipment as Delivered
+###############################################
+
+PATCH {{baseUrl}}/1/status
+Content-Type: application/json
+
+{
+  "status": "DELIVERED",
+  "currentLocation": "Customer Address"
+}
+
+###
+
+###############################################
+# 7️⃣ Delete Shipment
+#
+# Deletes a shipment permanently.
+###############################################
+
+DELETE {{baseUrl}}/1
+Accept: application/json
+
+###
