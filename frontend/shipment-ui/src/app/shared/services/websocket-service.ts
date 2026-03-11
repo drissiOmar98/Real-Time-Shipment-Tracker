@@ -95,6 +95,40 @@ export class WebsocketService {
     });
   }
 
+  /**
+   * 🔌 Connect to WebSocket server
+   *
+   * Activates the STOMP client if not already connected.
+   */
+  connect(): void {
+    if (this.client.active) {
+      console.log('[Websocket] Already connected or connecting');
+      return;
+    }
+
+    this.client.activate();
+  }
+
+   /**
+   * ✂️ Disconnect from WebSocket server
+   *
+   * Unsubscribes from all topics and deactivates the STOMP client.
+   */
+  disconnect(): void {
+    if (this.client.active) {
+      console.log('[WebSocket] Disconnecting...');
+
+         // Unsubscribe from all active topics
+      this.subscriptions.forEach((subscription) => {
+        subscription.unsubscribe();
+      });
+      this.subscriptions.clear();
+
+      // Deactivate the client
+      this.client.deactivate();
+    }
+  }
+
 
 
 }
