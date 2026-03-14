@@ -2,6 +2,7 @@ import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {CreateShipmentRequest, Shipment, UpdateStatusRequest} from '../models/shipment.model';
 import {Observable} from 'rxjs';
+import {environment} from '../../../environments/environment';
 
 /**
  * Service responsible for communicating with the Shipment API.
@@ -17,7 +18,7 @@ import {Observable} from 'rxjs';
 export class ShipmentService {
 
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8080/api/shipments';
+  private apiUrl = `${environment.apiUrl}/shipments`;
 
   createShipment(request: CreateShipmentRequest): Observable<Shipment> {
     return this.http.post<Shipment>(this.apiUrl, request);
