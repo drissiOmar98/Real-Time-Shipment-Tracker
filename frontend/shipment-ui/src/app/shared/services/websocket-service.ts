@@ -2,6 +2,7 @@ import {DestroyRef, inject, Injectable} from '@angular/core';
 import {Client, StompSubscription, Versions} from '@stomp/stompjs';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {StatusUpdateMessage} from '../models/shipment.model';
+import {environment} from '../../../environments/environment';
 
 /**
  * 🛰 WebsocketService
@@ -53,7 +54,7 @@ export class WebsocketService {
    */
   initClient(): void {
     this.client = new Client({
-      brokerURL: 'http://localhost:8080/ws', // WebSocket endpoint
+      brokerURL: environment.websocketUrl, // WebSocket endpoint
       stompVersions: Versions.default,       // Default STOMP version
       reconnectDelay: 5000,                  // Attempt reconnect every 5s
       heartbeatIncoming: 10000,              // Expect ping every 10s
