@@ -18,3 +18,14 @@ spring:
         format_sql: true
   flyway:
     locations: classpath:/db/migration/{vendor}
+
+# Logging for AOT repository generation (useful to see what's being generated)
+logging:
+  level:
+    org:
+      springframework:
+        data:
+          repository:
+            aot:
+              generate:
+                RepositoryContributor: trace
