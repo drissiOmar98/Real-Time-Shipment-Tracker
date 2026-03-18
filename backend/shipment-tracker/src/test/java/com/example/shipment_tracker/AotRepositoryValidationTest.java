@@ -63,5 +63,15 @@ class AotRepositoryValidationTest {
 
     private static final JsonMapper mapper = JsonMapper.builder().build();
 
+    /**
+     * Validates that all custom methods declared in {@link ShipmentRepository}
+     * are present in the generated Spring Data AOT metadata.
+     */
+    @Test
+    void coffeeRepositoryMethodsAreAotProcessed() throws IOException {
+        validateRepository(ShipmentRepository.class, "com/example/shipment_tracker/shipment/repository/ShipmentRepository.json");
+    }
+
+
 
 }
